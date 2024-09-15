@@ -1,0 +1,17 @@
+{
+    "title": "SET_EHEATER_PARAM",
+    "to": "44:17:93:28:DA:12",
+    "mUnit": 0,
+    "sollTemp": 250,
+    "active": 1,
+    "hystLow": 5,
+    "hystHigh": 5,
+    "offset": 0,
+    "mode": 0,
+    "sync": "",
+    "partnerName": "",
+    "dayStartT": 390,
+    "nightStartT": 1080,
+    "nReduce": 0,
+    "from": "USER"
+}

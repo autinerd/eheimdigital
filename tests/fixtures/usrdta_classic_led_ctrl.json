@@ -1,0 +1,38 @@
+{
+    "title": "USRDTA",
+    "from": "64:B7:08:30:B0:58",
+    "name": "Aquarienlicht",
+    "aqName": "Aquarium",
+    "mode": "DAYCL_MODE",
+    "version": 17,
+    "language": "EN",
+    "timezone": 60,
+    "tID": 30,
+    "dst": 1,
+    "tankconfig": "[[],[\"CLASSIC_DAYLIGHT\"]]",
+    "power": "[[],[17]]",
+    "netmode": "ST",
+    "host": "eheimdigital",
+    "groupID": 0,
+    "meshing": 1,
+    "firstStart": 0,
+    "revision": [
+        2022,
+        2022
+    ],
+    "latestAvailableRevision": [
+        -1,
+        -1,
+        -1,
+        -1
+    ],
+    "firmwareAvailable": 0,
+    "softChange": 0,
+    "emailAddr": "",
+    "liveTime": 39900,
+    "usrName": "",
+    "unit": 0,
+    "demoUse": 0,
+    "sysLED": 100,
+    "to": "USER"
+}

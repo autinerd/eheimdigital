@@ -1,0 +1,20 @@
+{
+    "title": "HEATER_DATA",
+    "from": "44:17:93:28:DA:12",
+    "mUnit": 0,
+    "sollTemp": 250,
+    "isTemp": 249,
+    "hystLow": 5,
+    "hystHigh": 5,
+    "offset": 0,
+    "active": 1,
+    "isHeating": 0,
+    "mode": 0,
+    "sync": "",
+    "partnerName": "",
+    "dayStartT": 0,
+    "nightStartT": 0,
+    "nReduce": 0,
+    "alertState": 0,
+    "to": "USER"
+}

@@ -1,0 +1,16 @@
+{
+    "title": "SET_CLASSIC_VARIO_PARAM",
+    "to": "E4:65:B8:2B:60:5C",
+    "filterActive": 1,
+    "rel_manual_motor_speed": 100,
+    "rel_motor_speed_day": 56,
+    "rel_motor_speed_night": 20,
+    "startTime_day": 600,
+    "startTime_night": 1080,
+    "pulse_motorSpeed_High": 100,
+    "pulse_motorSpeed_Low": 20,
+    "pulse_Time_High": 100,
+    "pulse_Time_Low": 50,
+    "pumpMode": 4,
+    "from": "USER"
+}
