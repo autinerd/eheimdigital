@@ -75,8 +75,7 @@ class EheimDigitalHeater(EheimDigitalDevice):
         """Return the target temperature."""
         return self.heater_data["sollTemp"] / 10
 
-    @target_temperature.setter
-    async def target_temperature(self, value: float) -> None:
+    async def set_target_temperature(self, value: float) -> None:
         """Set a new target temperature."""
         await self.set_eheater_param({"sollTemp": int(value * 10)})
 
@@ -85,8 +84,7 @@ class EheimDigitalHeater(EheimDigitalDevice):
         """Return the temperature offset."""
         return self.heater_data["offset"] / 10
 
-    @temperature_offset.setter
-    async def temperature_offset(self, value: float) -> None:
+    async def set_temperature_offset(self, value: float) -> None:
         """Set a temperature offset."""
         await self.set_eheater_param({"offset": int(value * 10)})
 

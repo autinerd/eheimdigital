@@ -44,6 +44,11 @@ class EheimDigitalDevice:
         """Device type."""
         return EheimDeviceType(self.usrdta["version"])
 
+    @cached_property
+    def aquarium_name(self) -> str:
+        """Aquarium name."""
+        return self.usrdta["aqName"]
+
     @abstractmethod
     async def parse_message(self, msg: dict) -> None:
         """Parse a message."""

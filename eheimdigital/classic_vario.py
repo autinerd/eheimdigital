@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from logging import getLogger
 from typing import TYPE_CHECKING
 
 from .device import EheimDigitalDevice
@@ -15,11 +16,13 @@ from .types import (
 if TYPE_CHECKING:
     from eheimdigital.hub import EheimDigitalHub
 
+_LOGGER = getLogger(__package__)
+
 
 class EheimDigitalClassicVario(EheimDigitalDevice):
     """Represent a Eheim Digital classicVARIO filter."""
 
-    classic_vario_data: ClassicVarioDataPacket
+    classic_vario_data: ClassicVarioDataPacket | None = None
 
     def __init__(self, hub: EheimDigitalHub, usrdta: UsrDtaPacket) -> None:
         """Initialize a classicVARIO filter."""
@@ -42,6 +45,11 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
 
     async def set_classic_vario_param(self, data: dict) -> None:
         """Send a SET_CLASSIC_VARIO_PARAM packet, containing new values from data."""
+        if self.classic_vario_data is None:
+            _LOGGER.error(
+                "set_classic_vario_param: No CLASSIC_VARIO_DATA packet received yet."
+            )
+            return
         await self.hub.send_packet(
             {
                 "title": "SET_CLASSIC_VARIO_PARAM",
@@ -83,8 +91,8 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         """Return the current filter mode."""
         return FilterMode(self.classic_vario_data["pumpMode"])
 
-    @filter_mode.setter
-    async def filter_mode(self, value: FilterMode) -> None:
+    async def set_filter_mode(self, value: FilterMode) -> None:
+        """Set the filter mode."""
         await self.set_classic_vario_param({"pumpMode": value.value})
 
     @property

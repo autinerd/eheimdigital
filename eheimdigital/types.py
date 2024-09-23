@@ -29,6 +29,13 @@ class FilterMode(IntEnum):
     BIO = 4
 
 
+class LightMode(StrEnum):
+    """Light operation mode."""
+
+    DAYCL_MODE = "DAYCL_MODE"
+    MAN_MODE = "MAN_MODE"
+
+
 class MsgTitle(StrEnum):
     """Represent a message title."""
 
@@ -75,13 +82,24 @@ class EheimDeviceType(IntEnum):
     VERSION_EHEIM_CONDUCTION_METER = 19
     VERSION_EHEIM_COMPACT_ON = 20
 
+    @property
+    def model_name(self) -> str | None:
+        """Return the model name."""
+        match self:
+            case EheimDeviceType.VERSION_EHEIM_EXT_HEATER:
+                return "thermocontrol+e"
+            case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
+                return "classicVARIO+e"
+            case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
+                return "classicLEDcontrol+e"
+            case _:
+                return None
 
-class MeshNetworkPacket(TypedDict):
-    """A mesh network packet."""
 
-    title: str
-    to: str
-    clientList: list[str]
+MeshNetworkPacket = TypedDict(
+    "MeshNetworkPacket",
+    {"title": str, "to": str, "clientList": list[str], "from": NotRequired[str]},
+)
 
 
 UsrDtaPacket = TypedDict(
@@ -246,5 +264,21 @@ AcclimatePacket = TypedDict(
         "acclActive": int,
         "pause": int,
         "to": str,
+    },
+)
+
+ClockPacket = TypedDict(
+    "ClockPacket",
+    {
+        "title": Literal[MsgTitle.CLOCK],
+        "from": str,
+        "year": int,
+        "month": int,
+        "day": int,
+        "hour": int,
+        "min": int,
+        "sec": int,
+        "mode": NotRequired[str],
+        "valid": NotRequired[int],
     },
 )

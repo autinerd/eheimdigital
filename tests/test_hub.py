@@ -12,6 +12,7 @@ from eheimdigital.types import UsrDtaPacket
 
 @pytest.mark.parametrize("fixture", ["usrdta_heater.json"])
 async def test_add_device(fixture: str) -> None:
+    """Tests adding a device."""
     usrdta = UsrDtaPacket(
         json.loads(
             (Path(__file__).parent / "fixtures" / fixture).read_text(encoding="utf8")
