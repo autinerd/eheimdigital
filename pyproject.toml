@@ -2,19 +2,22 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-
 [project]
 name = "eheimdigital"
 description = "Offers a Python API for the EHEIM Digital smart aquarium devices."
-version = "1.0.0"
+dynamic = ["version"]
 dependencies = ["aiohttp"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
 ]
+license = { text = "MIT License" }
 
-[project.optional-dependencies]
-test = ["pytest", "pytest-asyncio"]
+[project.urls]
+Homepage = "https://github.com/autinerd/eheimdigital"
+
+[tool.setuptools.dynamic]
+version = { attr = "eheimdigital.__version__" }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
@@ -22,11 +25,12 @@ asyncio_mode = "auto"
 [tool.ruff]
 output-format = "concise"
 
-
 [tool.ruff.lint]
 select = ["ALL"]
-
 ignore = ["D211", "D213", "COM812", "D203", "ISC001", "E501", "EXE002"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "RUF018"]
+
+[tool.uv]
+dev-dependencies = ["ruff>=0.6.7", "pytest>=8.3.3", "pytest-asyncio>=0.24.0"]
