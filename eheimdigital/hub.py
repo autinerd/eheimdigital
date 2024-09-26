@@ -82,9 +82,11 @@ class EheimDigitalHub:
 
     async def request_usrdta(self, mac_address: str) -> None:
         """Request the USRDTA of a device."""
-        await self.send_packet(
-            {"title": MsgTitle.GET_USRDTA, "to": mac_address, "from": "USER"}
-        )
+        await self.send_packet({
+            "title": MsgTitle.GET_USRDTA,
+            "to": mac_address,
+            "from": "USER",
+        })
 
     async def send_packet(self, packet: dict[str, Any]) -> None:
         """Send a packet to the hub."""

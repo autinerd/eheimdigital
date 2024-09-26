@@ -57,20 +57,28 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
     @override
     async def update(self) -> None:
         """Get the new light state."""
-        await self.hub.send_packet(
-            {"title": "REQ_CCV", "to": self.mac_address, "from": "USER"}
-        )
-        await self.hub.send_packet(
-            {"title": "GET_CLOCK", "to": self.mac_address, "from": "USER"}
-        )
+        await self.hub.send_packet({
+            "title": "REQ_CCV",
+            "to": self.mac_address,
+            "from": "USER",
+        })
+        await self.hub.send_packet({
+            "title": "GET_CLOCK",
+            "to": self.mac_address,
+            "from": "USER",
+        })
         if "moon" not in self.__dict__:
-            await self.hub.send_packet(
-                {"title": "GET_MOON", "to": self.mac_address, "from": "USER"}
-            )
+            await self.hub.send_packet({
+                "title": "GET_MOON",
+                "to": self.mac_address,
+                "from": "USER",
+            })
         if "cloud" not in self.__dict__:
-            await self.hub.send_packet(
-                {"title": "GET_CLOUD", "to": self.mac_address, "from": "USER"}
-            )
+            await self.hub.send_packet({
+                "title": "GET_CLOUD",
+                "to": self.mac_address,
+                "from": "USER",
+            })
 
     @property
     def light_level(self) -> tuple[int | None, int | None]:
@@ -105,9 +113,11 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
 
     async def set_light_mode(self, mode: LightMode) -> None:
         """Set the light operation mode."""
-        await self.hub.send_packet(
-            {"title": str(mode), "to": self.mac_address, "from": "USER"}
-        )
+        await self.hub.send_packet({
+            "title": str(mode),
+            "to": self.mac_address,
+            "from": "USER",
+        })
 
     async def turn_on(self, value: int, channel: int) -> None:
         """Set a new brightness value for a channel."""
@@ -117,14 +127,12 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return
         currentvalues = self.ccv["currentValues"]
         currentvalues[channel] = value
-        await self.hub.send_packet(
-            {
-                "title": "CCV-SL",
-                "currentValues": currentvalues,
-                "to": self.mac_address,
-                "from": "USER",
-            }
-        )
+        await self.hub.send_packet({
+            "title": "CCV-SL",
+            "currentValues": currentvalues,
+            "to": self.mac_address,
+            "from": "USER",
+        })
 
     async def turn_off(self, channel: int) -> None:
         """Turn off a channel."""
@@ -134,11 +142,9 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return
         currentvalues = self.ccv["currentValues"]
         currentvalues[channel] = 0
-        await self.hub.send_packet(
-            {
-                "title": "CCV-SL",
-                "currentValues": currentvalues,
-                "to": self.mac_address,
-                "from": "USER",
-            }
-        )
+        await self.hub.send_packet({
+            "title": "CCV-SL",
+            "currentValues": currentvalues,
+            "to": self.mac_address,
+            "from": "USER",
+        })

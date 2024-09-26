@@ -37,13 +37,11 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
     @override
     async def update(self) -> None:
         """Get the new filter state."""
-        await self.hub.send_packet(
-            {
-                "title": MsgTitle.GET_CLASSIC_VARIO_DATA,
-                "to": self.mac_address,
-                "from": "USER",
-            }
-        )
+        await self.hub.send_packet({
+            "title": MsgTitle.GET_CLASSIC_VARIO_DATA,
+            "to": self.mac_address,
+            "from": "USER",
+        })
 
     async def set_classic_vario_param(self, data: dict[str, Any]) -> None:
         """Send a SET_CLASSIC_VARIO_PARAM packet, containing new values from data."""
@@ -52,31 +50,23 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
                 "set_classic_vario_param: No CLASSIC_VARIO_DATA packet received yet."
             )
             return
-        await self.hub.send_packet(
-            {
-                "title": "SET_CLASSIC_VARIO_PARAM",
-                "to": self.classic_vario_data["from"],
-                "filterActive": self.classic_vario_data["filterActive"],
-                "rel_manual_motor_speed": self.classic_vario_data[
-                    "rel_manual_motor_speed"
-                ],
-                "rel_motor_speed_day": self.classic_vario_data["rel_motor_speed_day"],
-                "rel_motor_speed_night": self.classic_vario_data[
-                    "rel_motor_speed_night"
-                ],
-                "startTime_day": self.classic_vario_data["startTime_day"],
-                "startTime_night": self.classic_vario_data["startTime_night"],
-                "pulse_motorSpeed_High": self.classic_vario_data[
-                    "pulse_motorSpeed_High"
-                ],
-                "pulse_motorSpeed_Low": self.classic_vario_data["pulse_motorSpeed_Low"],
-                "pulse_Time_High": self.classic_vario_data["pulse_Time_High"],
-                "pulse_Time_Low": self.classic_vario_data["pulse_Time_Low"],
-                "pumpMode": self.classic_vario_data["pumpMode"],
-                "from": "USER",
-                **data,
-            }
-        )
+        await self.hub.send_packet({
+            "title": "SET_CLASSIC_VARIO_PARAM",
+            "to": self.classic_vario_data["from"],
+            "filterActive": self.classic_vario_data["filterActive"],
+            "rel_manual_motor_speed": self.classic_vario_data["rel_manual_motor_speed"],
+            "rel_motor_speed_day": self.classic_vario_data["rel_motor_speed_day"],
+            "rel_motor_speed_night": self.classic_vario_data["rel_motor_speed_night"],
+            "startTime_day": self.classic_vario_data["startTime_day"],
+            "startTime_night": self.classic_vario_data["startTime_night"],
+            "pulse_motorSpeed_High": self.classic_vario_data["pulse_motorSpeed_High"],
+            "pulse_motorSpeed_Low": self.classic_vario_data["pulse_motorSpeed_Low"],
+            "pulse_Time_High": self.classic_vario_data["pulse_Time_High"],
+            "pulse_Time_Low": self.classic_vario_data["pulse_Time_Low"],
+            "pumpMode": self.classic_vario_data["pumpMode"],
+            "from": "USER",
+            **data,
+        })
 
     @property
     def current_speed(self) -> int:

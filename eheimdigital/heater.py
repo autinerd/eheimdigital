@@ -34,33 +34,33 @@ class EheimDigitalHeater(EheimDigitalDevice):
     @override
     async def update(self) -> None:
         """Get the new heater state."""
-        await self.hub.send_packet(
-            {"title": MsgTitle.GET_EHEATER_DATA, "to": self.mac_address, "from": "USER"}
-        )
+        await self.hub.send_packet({
+            "title": MsgTitle.GET_EHEATER_DATA,
+            "to": self.mac_address,
+            "from": "USER",
+        })
 
     @override
     async def set_eheater_param(self, data: dict[str, Any]) -> None:
         """Send a SET_EHEATER_PARAM packet, containing new values from data."""
-        await self.hub.send_packet(
-            {
-                "title": "SET_EHEATER_PARAM",
-                "to": self.heater_data["from"],
-                "mUnit": self.heater_data["mUnit"],
-                "sollTemp": self.heater_data["sollTemp"],
-                "active": self.heater_data["active"],
-                "hystLow": self.heater_data["hystLow"],
-                "hystHigh": self.heater_data["hystHigh"],
-                "offset": self.heater_data["offset"],
-                "mode": self.heater_data["mode"],
-                "sync": self.heater_data["sync"],
-                "partnerName": self.heater_data["partnerName"],
-                "dayStartT": self.heater_data["dayStartT"],
-                "nightStartT": self.heater_data["nightStartT"],
-                "nReduce": self.heater_data["nReduce"],
-                "from": "USER",
-                **data,
-            }
-        )
+        await self.hub.send_packet({
+            "title": "SET_EHEATER_PARAM",
+            "to": self.heater_data["from"],
+            "mUnit": self.heater_data["mUnit"],
+            "sollTemp": self.heater_data["sollTemp"],
+            "active": self.heater_data["active"],
+            "hystLow": self.heater_data["hystLow"],
+            "hystHigh": self.heater_data["hystHigh"],
+            "offset": self.heater_data["offset"],
+            "mode": self.heater_data["mode"],
+            "sync": self.heater_data["sync"],
+            "partnerName": self.heater_data["partnerName"],
+            "dayStartT": self.heater_data["dayStartT"],
+            "nightStartT": self.heater_data["nightStartT"],
+            "nReduce": self.heater_data["nReduce"],
+            "from": "USER",
+            **data,
+        })
 
     @property
     def temperature_unit(self) -> HeaterUnit:
