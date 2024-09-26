@@ -169,7 +169,7 @@ HeaterDataPacket = TypedDict(
 SetEheaterParamPacket = TypedDict(
     "SetEheaterParamPacket",
     {
-        "title": Literal["SET_EHEATER_PARAM"],
+        "title": Literal[MsgTitle.SET_EHEATER_PARAM],
         "to": str,
         "mUnit": int,
         "sollTemp": int,

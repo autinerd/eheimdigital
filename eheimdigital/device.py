@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .types import EheimDeviceType
 
@@ -50,7 +50,7 @@ class EheimDigitalDevice:
         return self.usrdta["aqName"]
 
     @abstractmethod
-    async def parse_message(self, msg: dict) -> None:
+    async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a message."""
 
     @abstractmethod

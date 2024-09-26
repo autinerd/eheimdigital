@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
 from .types import (
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class EheimDigitalHeater(EheimDigitalDevice):
     """Represent a Eheim Digital Heater."""
 
-    heater_data: HeaterDataPacket
+    heater_data: HeaterDataPacket | None = None
 
     def __init__(self, hub: EheimDigitalHub, usrdta: UsrDtaPacket) -> None:
         """Initialize a heater."""
@@ -31,13 +31,15 @@ class EheimDigitalHeater(EheimDigitalDevice):
         if msg["title"] == MsgTitle.HEATER_DATA:
             self.heater_data = HeaterDataPacket(**msg)
 
+    @override
     async def update(self) -> None:
         """Get the new heater state."""
         await self.hub.send_packet(
             {"title": MsgTitle.GET_EHEATER_DATA, "to": self.mac_address, "from": "USER"}
         )
 
-    async def set_eheater_param(self, data: dict) -> None:
+    @override
+    async def set_eheater_param(self, data: dict[str, Any]) -> None:
         """Send a SET_EHEATER_PARAM packet, containing new values from data."""
         await self.hub.send_packet(
             {

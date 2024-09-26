@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from logging import getLogger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
 from .types import (
@@ -28,11 +28,13 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         """Initialize a classicVARIO filter."""
         super().__init__(hub, usrdta)
 
-    async def parse_message(self, msg: dict) -> None:
+    @override
+    async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a message."""
         if msg["title"] == MsgTitle.CLASSIC_VARIO_DATA:
             self.classic_vario_data = ClassicVarioDataPacket(**msg)
 
+    @override
     async def update(self) -> None:
         """Get the new filter state."""
         await self.hub.send_packet(
@@ -43,7 +45,7 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
             }
         )
 
-    async def set_classic_vario_param(self, data: dict) -> None:
+    async def set_classic_vario_param(self, data: dict[str, Any]) -> None:
         """Send a SET_CLASSIC_VARIO_PARAM packet, containing new values from data."""
         if self.classic_vario_data is None:
             _LOGGER.error(

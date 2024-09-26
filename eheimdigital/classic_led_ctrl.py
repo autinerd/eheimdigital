@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from logging import getLogger
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, override
 
 from eheimdigital.device import EheimDigitalDevice
 from eheimdigital.types import (
@@ -39,7 +39,8 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
         self.tankconfig = json.loads(usrdta["tankconfig"])
         self.power = json.loads(usrdta["power"])
 
-    async def parse_message(self, msg: dict) -> None:
+    @override
+    async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a message."""
         match msg["title"]:
             case MsgTitle.CCV:
@@ -50,7 +51,10 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
                 self.moon = MoonPacket(**msg)
             case MsgTitle.CLOCK:
                 self.clock = ClockPacket(**msg)
+            case _:
+                pass
 
+    @override
     async def update(self) -> None:
         """Get the new light state."""
         await self.hub.send_packet(

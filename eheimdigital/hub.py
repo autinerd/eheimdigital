@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import asyncio
-import typing
 from logging import getLogger
+from typing import TYPE_CHECKING, Any, Callable
 
 import aiohttp
 
@@ -13,7 +13,9 @@ from .classic_vario import EheimDigitalClassicVario
 from .heater import EheimDigitalHeater
 from .types import EheimDeviceType, MeshNetworkPacket, MsgTitle, UsrDtaPacket
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
+    from collections.abc import Awaitable
+
     from .device import EheimDigitalDevice
 
 
@@ -24,10 +26,10 @@ class EheimDigitalHub:
     """Represent a Eheim Digital hub."""
 
     devices: dict[str, EheimDigitalDevice]
-    ws: aiohttp.ClientWebSocketResponse
-    receive_task: asyncio.Task
+    ws: aiohttp.ClientWebSocketResponse | None = None
+    receive_task: asyncio.Task[None] | None = None
     loop: asyncio.AbstractEventLoop
-    receive_callback: typing.Callable[[], typing.Awaitable[None]] | None
+    receive_callback: Callable[[], Awaitable[None]] | None
     master: EheimDigitalDevice | None
 
     def __init__(
@@ -35,7 +37,7 @@ class EheimDigitalHub:
         *,
         session: aiohttp.ClientSession | None = None,
         loop: asyncio.AbstractEventLoop | None = None,
-        receive_callback: typing.Callable[[], typing.Awaitable[None]] | None = None,
+        receive_callback: Callable[[], Awaitable[None]] | None = None,
     ) -> None:
         """Initialize a hub."""
         self.session = session or aiohttp.ClientSession(
@@ -53,9 +55,10 @@ class EheimDigitalHub:
 
     async def close(self) -> None:  # pragma: no cover
         """Close the connection."""
-        self.receive_task.cancel()
+        if self.receive_task is not None:
+            _ = self.receive_task.cancel()
         if self.ws is not None and not self.ws.closed:
-            await self.ws.close()
+            _ = await self.ws.close()
 
     def add_device(self, usrdta: UsrDtaPacket) -> None:
         """Add a device to the device list."""
@@ -68,6 +71,12 @@ class EheimDigitalHub:
                 self.devices[usrdta["from"]] = EheimDigitalClassicLEDControl(
                     self, usrdta
                 )
+            case _:
+                _LOGGER.debug(
+                    "Found device %s with unsupported device type %s",
+                    usrdta["from"],
+                    EheimDeviceType(usrdta["version"]),
+                )
         if self.master is None and usrdta["from"] in self.devices:
             self.master = self.devices[usrdta["from"]]
 
@@ -77,9 +86,10 @@ class EheimDigitalHub:
             {"title": MsgTitle.GET_USRDTA, "to": mac_address, "from": "USER"}
         )
 
-    async def send_packet(self, packet: dict) -> None:
+    async def send_packet(self, packet: dict[str, Any]) -> None:
         """Send a packet to the hub."""
-        await self.ws.send_json(packet)
+        if self.ws is not None:
+            await self.ws.send_json(packet)
 
     async def parse_mesh_network(self, msg: MeshNetworkPacket) -> None:
         """Parse a MESH_NETWORK packet."""
@@ -92,7 +102,7 @@ class EheimDigitalHub:
         if msg["from"] not in self.devices:
             self.add_device(msg)
 
-    async def parse_message(self, msg: dict) -> None:
+    async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a received message."""
         if "from" not in msg:
             _LOGGER.debug("Received message without 'from' property: %s", msg)
@@ -126,10 +136,13 @@ class EheimDigitalHub:
 
     async def receive_messages(self) -> None:
         """Receive messages from the hub."""
+        if self.ws is None:
+            _LOGGER.error("receive_task called without an established connection!")
+            return
         while True:
             async for msg in self.ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
-                    msgdata = msg.json()
+                    msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
                     if type(msgdata) is list:
                         for part in msgdata:
                             await self.parse_message(part)
@@ -138,7 +151,7 @@ class EheimDigitalHub:
 
     async def update(self) -> None:
         """Update the device states."""
-        if not self.ws:
+        if self.ws is None:
             await self.connect()
         await self.request_usrdta("ALL")
         for device in self.devices.values():
