@@ -7,6 +7,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING, Any, Callable
 
 import aiohttp
+from yarl import URL
 
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
 from .classic_vario import EheimDigitalClassicVario
@@ -26,31 +27,32 @@ class EheimDigitalHub:
     """Represent a Eheim Digital hub."""
 
     devices: dict[str, EheimDigitalDevice]
-    ws: aiohttp.ClientWebSocketResponse | None = None
-    receive_task: asyncio.Task[None] | None = None
     loop: asyncio.AbstractEventLoop
+    main: EheimDigitalDevice | None
     receive_callback: Callable[[], Awaitable[None]] | None
-    master: EheimDigitalDevice | None
+    receive_task: asyncio.Task[None] | None = None
+    url: URL
+    ws: aiohttp.ClientWebSocketResponse | None = None
 
     def __init__(
         self,
         *,
+        host: str = "eheimdigital.local",
         session: aiohttp.ClientSession | None = None,
         loop: asyncio.AbstractEventLoop | None = None,
         receive_callback: Callable[[], Awaitable[None]] | None = None,
     ) -> None:
         """Initialize a hub."""
-        self.session = session or aiohttp.ClientSession(
-            base_url="http://eheimdigital.local"
-        )
+        self.url = URL.build(scheme="http", host=host, path="/ws")
+        self.session = session or aiohttp.ClientSession()
         self.devices = {}
         self.loop = loop or asyncio.get_event_loop()
         self.receive_callback = receive_callback
-        self.master = None
+        self.main = None
 
     async def connect(self) -> None:  # pragma: no cover
         """Connect to the hub."""
-        self.ws = await self.session.ws_connect("/ws")
+        self.ws = await self.session.ws_connect(self.url)
         self.receive_task = self.loop.create_task(self.receive_messages())
 
     async def close(self) -> None:  # pragma: no cover
@@ -77,8 +79,8 @@ class EheimDigitalHub:
                     usrdta["from"],
                     EheimDeviceType(usrdta["version"]),
                 )
-        if self.master is None and usrdta["from"] in self.devices:
-            self.master = self.devices[usrdta["from"]]
+        if self.main is None and usrdta["from"] in self.devices:
+            self.main = self.devices[usrdta["from"]]
 
     async def request_usrdta(self, mac_address: str) -> None:
         """Request the USRDTA of a device."""
@@ -145,7 +147,7 @@ class EheimDigitalHub:
             async for msg in self.ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
-                    if type(msgdata) is list:
+                    if isinstance(msgdata, list):
                         for part in msgdata:
                             await self.parse_message(part)
                     else:
