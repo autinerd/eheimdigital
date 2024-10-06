@@ -44,7 +44,8 @@ class EheimDigitalHub:
         loop: asyncio.AbstractEventLoop | None = None,
         receive_callback: Callable[[], Awaitable[None]] | None = None,
         main_device_added_event: asyncio.Event | None = None,
-        device_found_callback: Callable[[str, EheimDeviceType], Awaitable[None]] | None = None,
+        device_found_callback: Callable[[str, EheimDeviceType], Awaitable[None]]
+        | None = None,
     ) -> None:
         """Initialize a hub."""
         self.device_found_callback = device_found_callback
@@ -74,17 +75,23 @@ class EheimDigitalHub:
             case EheimDeviceType.VERSION_EHEIM_EXT_HEATER:
                 self.devices[usrdta["from"]] = EheimDigitalHeater(self, usrdta)
                 if self.device_found_callback:
-                    await self.device_found_callback(usrdta["from"], EheimDeviceType(usrdta["version"]))
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
                 self.devices[usrdta["from"]] = EheimDigitalClassicVario(self, usrdta)
                 if self.device_found_callback:
-                    await self.device_found_callback(usrdta["from"], EheimDeviceType(usrdta["version"]))
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
                 self.devices[usrdta["from"]] = EheimDigitalClassicLEDControl(
                     self, usrdta
                 )
                 if self.device_found_callback:
-                    await self.device_found_callback(usrdta["from"], EheimDeviceType(usrdta["version"]))
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
             case _:
                 _LOGGER.debug(
                     "Found device %s with unsupported device type %s",

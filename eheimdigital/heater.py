@@ -5,12 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
-from .types import (
-    HeaterDataPacket,
-    HeaterMode,
-    HeaterUnit,
-    MsgTitle,
-)
+from .types import HeaterDataPacket, HeaterMode, HeaterUnit, MsgTitle
 
 if TYPE_CHECKING:
     from .hub import EheimDigitalHub

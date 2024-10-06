@@ -6,12 +6,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
-from .types import (
-    ClassicVarioDataPacket,
-    FilterMode,
-    MsgTitle,
-    UsrDtaPacket,
-)
+from .types import ClassicVarioDataPacket, FilterMode, MsgTitle, UsrDtaPacket
 
 if TYPE_CHECKING:
     from eheimdigital.hub import EheimDigitalHub
