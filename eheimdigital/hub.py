@@ -26,9 +26,11 @@ _LOGGER = getLogger(__package__)
 class EheimDigitalHub:
     """Represent a Eheim Digital hub."""
 
+    device_found_callback: Callable[[str, EheimDeviceType], Awaitable[None]] | None
     devices: dict[str, EheimDigitalDevice]
     loop: asyncio.AbstractEventLoop
     main: EheimDigitalDevice | None
+    main_device_added_event: asyncio.Event | None = None
     receive_callback: Callable[[], Awaitable[None]] | None
     receive_task: asyncio.Task[None] | None = None
     url: URL
@@ -41,14 +43,18 @@ class EheimDigitalHub:
         session: aiohttp.ClientSession | None = None,
         loop: asyncio.AbstractEventLoop | None = None,
         receive_callback: Callable[[], Awaitable[None]] | None = None,
+        main_device_added_event: asyncio.Event | None = None,
+        device_found_callback: Callable[[str, EheimDeviceType], Awaitable[None]] | None = None,
     ) -> None:
         """Initialize a hub."""
-        self.url = URL.build(scheme="http", host=host, path="/ws")
-        self.session = session or aiohttp.ClientSession()
+        self.device_found_callback = device_found_callback
         self.devices = {}
         self.loop = loop or asyncio.get_event_loop()
-        self.receive_callback = receive_callback
         self.main = None
+        self.main_device_added_event = main_device_added_event
+        self.receive_callback = receive_callback
+        self.session = session or aiohttp.ClientSession()
+        self.url = URL.build(scheme="http", host=host, path="/ws")
 
     async def connect(self) -> None:  # pragma: no cover
         """Connect to the hub."""
@@ -62,17 +68,23 @@ class EheimDigitalHub:
         if self.ws is not None and not self.ws.closed:
             _ = await self.ws.close()
 
-    def add_device(self, usrdta: UsrDtaPacket) -> None:
+    async def add_device(self, usrdta: UsrDtaPacket) -> None:
         """Add a device to the device list."""
         match EheimDeviceType(usrdta["version"]):
             case EheimDeviceType.VERSION_EHEIM_EXT_HEATER:
                 self.devices[usrdta["from"]] = EheimDigitalHeater(self, usrdta)
+                if self.device_found_callback:
+                    await self.device_found_callback(usrdta["from"], EheimDeviceType(usrdta["version"]))
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
                 self.devices[usrdta["from"]] = EheimDigitalClassicVario(self, usrdta)
+                if self.device_found_callback:
+                    await self.device_found_callback(usrdta["from"], EheimDeviceType(usrdta["version"]))
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
                 self.devices[usrdta["from"]] = EheimDigitalClassicLEDControl(
                     self, usrdta
                 )
+                if self.device_found_callback:
+                    await self.device_found_callback(usrdta["from"], EheimDeviceType(usrdta["version"]))
             case _:
                 _LOGGER.debug(
                     "Found device %s with unsupported device type %s",
@@ -81,6 +93,8 @@ class EheimDigitalHub:
                 )
         if self.main is None and usrdta["from"] in self.devices:
             self.main = self.devices[usrdta["from"]]
+            if self.main_device_added_event:
+                self.main_device_added_event.set()
 
     async def request_usrdta(self, mac_address: str) -> None:
         """Request the USRDTA of a device."""
@@ -104,7 +118,7 @@ class EheimDigitalHub:
     async def parse_usrdta(self, msg: UsrDtaPacket) -> None:
         """Parse a USRDTA packet."""
         if msg["from"] not in self.devices:
-            self.add_device(msg)
+            await self.add_device(msg)
 
     async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a received message."""
