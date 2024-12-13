@@ -282,3 +282,10 @@ ClockPacket = TypedDict(
         "valid": NotRequired[int],
     },
 )
+
+class EheimDigitalClientError(Exception):
+    """EHEIM Digital client error."""
+
+    def __init__(self, *args: object) -> None:
+        """Initialize exception."""
+        super().__init__(*args)

@@ -12,7 +12,13 @@ from yarl import URL
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
 from .classic_vario import EheimDigitalClassicVario
 from .heater import EheimDigitalHeater
-from .types import EheimDeviceType, MeshNetworkPacket, MsgTitle, UsrDtaPacket
+from .types import (
+    EheimDeviceType,
+    EheimDigitalClientError,
+    MeshNetworkPacket,
+    MsgTitle,
+    UsrDtaPacket,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable
@@ -33,6 +39,7 @@ class EheimDigitalHub:
     main_device_added_event: asyncio.Event | None = None
     receive_callback: Callable[[], Awaitable[None]] | None
     receive_task: asyncio.Task[None] | None = None
+    session: aiohttp.ClientSession
     url: URL
     ws: aiohttp.ClientWebSocketResponse | None = None
 
@@ -112,9 +119,17 @@ class EheimDigitalHub:
         })
 
     async def send_packet(self, packet: dict[str, Any]) -> None:
-        """Send a packet to the hub."""
+        """Send a packet to the hub.
+
+        Raises:
+            EheimDigitalClientError: When there is an error with the connection.
+
+        """
         if self.ws is not None:
-            await self.ws.send_json(packet)
+            try:
+                await self.ws.send_json(packet)
+            except aiohttp.ClientError as err:
+                raise EheimDigitalClientError from err
 
     async def parse_mesh_network(self, msg: MeshNetworkPacket) -> None:
         """Parse a MESH_NETWORK packet."""
