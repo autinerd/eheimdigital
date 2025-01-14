@@ -94,3 +94,12 @@ class EheimDigitalHeater(EheimDigitalDevice):
     def is_heating(self) -> bool:
         """Return whether the heater is heating."""
         return bool(self.heater_data["isHeating"])
+
+    @property
+    def is_active(self) -> bool:
+        """Return whether the heater is enabled."""
+        return bool(self.heater_data["active"])
+
+    async def set_active(self, *, active: bool) -> None:
+        """Set whether the heater should be active or not."""
+        await self.set_eheater_param({"active": int(active)})
