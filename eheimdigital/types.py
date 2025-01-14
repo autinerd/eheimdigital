@@ -283,6 +283,7 @@ ClockPacket = TypedDict(
     },
 )
 
+
 class EheimDigitalClientError(Exception):
     """EHEIM Digital client error."""
 

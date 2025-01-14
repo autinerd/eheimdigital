@@ -37,7 +37,7 @@ class EheimDigitalDevice:
     @cached_property
     def sw_version(self) -> str:
         """Device software version."""
-        return f"{self.usrdta["revision"][0] // 1000}.{(self.usrdta["revision"][0] % 1000) // 100}.{self.usrdta["revision"][0] % 100}_{self.usrdta["revision"][1] // 1000}.{(self.usrdta["revision"][1] % 1000) // 100}.{self.usrdta["revision"][1] % 100}"
+        return f"{self.usrdta['revision'][0] // 1000}.{(self.usrdta['revision'][0] % 1000) // 100}.{self.usrdta['revision'][0] % 100}_{self.usrdta['revision'][1] // 1000}.{(self.usrdta['revision'][1] % 1000) // 100}.{self.usrdta['revision'][1] % 100}"
 
     @cached_property
     def device_type(self) -> EheimDeviceType:
