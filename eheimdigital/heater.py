@@ -90,6 +90,10 @@ class EheimDigitalHeater(EheimDigitalDevice):
         """Return the heater operation mode."""
         return HeaterMode(self.heater_data["mode"])
 
+    async def set_operation_mode(self, mode: HeaterMode) -> None:
+        """Set the heater operation mode."""
+        await self.set_eheater_param({"mode": int(mode)})
+
     @property
     def is_heating(self) -> bool:
         """Return whether the heater is heating."""
