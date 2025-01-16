@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from logging import getLogger
 from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
-from .types import ClassicVarioDataPacket, FilterMode, MsgTitle, UsrDtaPacket
+from .types import (
+    ClassicVarioDataPacket,
+    FilterErrorCode,
+    FilterMode,
+    MsgTitle,
+    UsrDtaPacket,
+)
 
 if TYPE_CHECKING:
     from eheimdigital.hub import EheimDigitalHub
@@ -64,25 +71,169 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         })
 
     @property
-    def current_speed(self) -> int:
+    def is_active(self) -> bool | None:
+        """Return whether the filter is active."""
+        if self.classic_vario_data is None:
+            return None
+        return bool(self.classic_vario_data["filterActive"])
+
+    async def set_active(self, *, active: bool) -> None:
+        """Set whether the filter should be active or not."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({"filterActive": int(active)})
+
+    @property
+    def current_speed(self) -> int | None:
         """Return the current filter pump speed."""
+        if self.classic_vario_data is None:
+            return None
         return self.classic_vario_data["rel_speed"]
 
     @property
-    def service_hours(self) -> int:
+    def manual_speed(self) -> int | None:
+        """Return the manual filter pump speed."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["rel_manual_motor_speed"]
+
+    async def set_manual_speed(self, speed: int) -> None:
+        """Set the filter speed in manual mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({"rel_manual_motor_speed": speed})
+
+    @property
+    def day_speed(self) -> int | None:
+        """Return the day filter pump speed in Bio mode."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["rel_motor_speed_day"]
+
+    async def set_day_speed(self, speed: int) -> None:
+        """Set the day filter speed in Bio mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({"rel_motor_speed_day": speed})
+
+    @property
+    def night_speed(self) -> int | None:
+        """Return the night filter pump speed in Bio mode."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["rel_motor_speed_night"]
+
+    async def set_night_speed(self, speed: int) -> None:
+        """Set the night filter speed in Bio mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({"rel_motor_speed_night": speed})
+
+    @property
+    def day_start_time(self) -> timedelta | None:
+        """Return the day start time for Bio mode."""
+        if self.classic_vario_data is None:
+            return None
+        return timedelta(minutes=self.classic_vario_data["startTime_day"])
+
+    async def set_day_start_time(self, day_start_time: timedelta) -> None:
+        """Set the day start time for Bio mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "startTime_day": int(day_start_time.total_seconds() / 60)
+        })
+
+    @property
+    def night_start_time(self) -> timedelta | None:
+        """Return the night start time for Bio mode."""
+        if self.classic_vario_data is None:
+            return None
+        return timedelta(minutes=self.classic_vario_data["startTime_night"])
+
+    async def set_night_start_time(self, night_start_time: timedelta) -> None:
+        """Set the night start time for Bio mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "startTime_night": int(night_start_time.total_seconds() / 60)
+        })
+
+    @property
+    def pulse_speeds(self) -> tuple[int, int] | None:
+        """Return pulse speeds for high and low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return None
+        return (
+            self.classic_vario_data["pulse_motorSpeed_High"],
+            self.classic_vario_data["pulse_motorSpeed_Low"],
+        )
+
+    async def set_pulse_speeds(self, pulse_high: int, pulse_low: int) -> None:
+        """Set pulse speeds for high and low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "pulse_motorSpeed_High": pulse_high,
+            "pulse_motorSpeed_Low": pulse_low,
+        })
+
+    @property
+    def pulse_times(self) -> tuple[int, int] | None:
+        """Return pulse times for high and low pulse in Pulse mode in seconds."""
+        if self.classic_vario_data is None:
+            return None
+        return (
+            self.classic_vario_data["pulse_Time_High"],
+            self.classic_vario_data["pulse_Time_Low"],
+        )
+
+    async def set_pulse_times(self, pulse_high: int, pulse_low: int) -> None:
+        """Set pulse times in seconds for high and low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "pulse_Time_High": pulse_high,
+            "pulse_Time_Low": pulse_low,
+        })
+
+    @property
+    def service_hours(self) -> int | None:
         """Return the amount of hours until the next service is needed."""
+        if self.classic_vario_data is None:
+            return None
         return self.classic_vario_data["serviceHour"]
 
     @property
-    def filter_mode(self) -> FilterMode:
+    def filter_mode(self) -> FilterMode | None:
         """Return the current filter mode."""
+        if self.classic_vario_data is None:
+            return None
         return FilterMode(self.classic_vario_data["pumpMode"])
 
     async def set_filter_mode(self, value: FilterMode) -> None:
         """Set the filter mode."""
+        if self.classic_vario_data is None:
+            return
         await self.set_classic_vario_param({"pumpMode": value.value})
 
     @property
-    def is_active(self) -> bool:
-        """Return whether the filter is active."""
-        return bool(self.classic_vario_data["filterActive"])
+    def turn_off_time(self) -> int | None:
+        """Return the remaining turn off time in seconds."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["turnOffTime"]
+
+    @property
+    def turn_feeding_time(self) -> int | None:
+        """Return the remaining pause time after the autofeeder sent a pause signal."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["turnTimeFeeding"]
+
+    @property
+    def error_code(self) -> FilterErrorCode | None:
+        """Return the current error code of the filter."""
+        if self.classic_vario_data is None:
+            return None
+        return FilterErrorCode(self.classic_vario_data["errorCode"])

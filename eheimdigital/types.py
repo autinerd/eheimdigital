@@ -29,6 +29,14 @@ class FilterMode(IntEnum):
     BIO = 4
 
 
+class FilterErrorCode(IntEnum):
+    """Filter error code."""
+
+    NO_ERROR = 0
+    ROTOR_STUCK = 1
+    AIR_IN_FILTER = 2
+
+
 class LightMode(StrEnum):
     """Light operation mode."""
 
