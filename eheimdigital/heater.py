@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
@@ -21,6 +22,7 @@ class EheimDigitalHeater(EheimDigitalDevice):
         """Initialize a heater."""
         super().__init__(hub, usrdta)
 
+    @override
     async def parse_message(self, msg: dict) -> None:
         """Parse a message."""
         if msg["title"] == MsgTitle.HEATER_DATA:
@@ -35,9 +37,10 @@ class EheimDigitalHeater(EheimDigitalDevice):
             "from": "USER",
         })
 
-    @override
     async def set_eheater_param(self, data: dict[str, Any]) -> None:
         """Send a SET_EHEATER_PARAM packet, containing new values from data."""
+        if self.heater_data is None:
+            return
         await self.hub.send_packet({
             "title": "SET_EHEATER_PARAM",
             "to": self.heater_data["from"],
@@ -58,52 +61,153 @@ class EheimDigitalHeater(EheimDigitalDevice):
         })
 
     @property
-    def temperature_unit(self) -> HeaterUnit:
+    def temperature_unit(self) -> HeaterUnit | None:
         """Return the temperature unit."""
+        if self.heater_data is None:
+            return None
         return HeaterUnit(self.heater_data["mUnit"])
 
     @property
-    def current_temperature(self) -> float:
+    def current_temperature(self) -> float | None:
         """Return the current temperature."""
+        if self.heater_data is None:
+            return None
         return self.heater_data["isTemp"] / 10
 
     @property
-    def target_temperature(self) -> float:
+    def target_temperature(self) -> float | None:
         """Return the target temperature."""
+        if self.heater_data is None:
+            return None
         return self.heater_data["sollTemp"] / 10
 
     async def set_target_temperature(self, value: float) -> None:
         """Set a new target temperature."""
+        if self.heater_data is None:
+            return
         await self.set_eheater_param({"sollTemp": int(value * 10)})
 
     @property
-    def temperature_offset(self) -> float:
+    def hysteresis(self) -> tuple[float, float] | None:
+        """Return the hysteresis for turning on and off the heater."""
+        if self.heater_data is None:
+            return None
+        return (self.heater_data["hystLow"] / 10, self.heater_data["hystHigh"] / 10)
+
+    async def set_hysteresis(self, hyst_low: float, hyst_high: float) -> None:
+        """Set the hysteresis for turning on and off the heater."""
+        if self.heater_data is None:
+            return
+        await self.set_eheater_param({
+            "hystLow": int(hyst_low * 10),
+            "hystHigh": int(hyst_high * 10),
+        })
+
+    @property
+    def temperature_offset(self) -> float | None:
         """Return the temperature offset."""
+        if self.heater_data is None:
+            return None
         return self.heater_data["offset"] / 10
 
     async def set_temperature_offset(self, value: float) -> None:
         """Set a temperature offset."""
+        if self.heater_data is None:
+            return
         await self.set_eheater_param({"offset": int(value * 10)})
 
     @property
-    def operation_mode(self) -> HeaterMode:
+    def operation_mode(self) -> HeaterMode | None:
         """Return the heater operation mode."""
+        if self.heater_data is None:
+            return None
         return HeaterMode(self.heater_data["mode"])
 
     async def set_operation_mode(self, mode: HeaterMode) -> None:
         """Set the heater operation mode."""
+        if self.heater_data is None:
+            return
         await self.set_eheater_param({"mode": int(mode)})
 
     @property
-    def is_heating(self) -> bool:
+    def is_heating(self) -> bool | None:
         """Return whether the heater is heating."""
+        if self.heater_data is None:
+            return None
         return bool(self.heater_data["isHeating"])
 
     @property
-    def is_active(self) -> bool:
+    def is_active(self) -> bool | None:
         """Return whether the heater is enabled."""
+        if self.heater_data is None:
+            return None
         return bool(self.heater_data["active"])
 
     async def set_active(self, *, active: bool) -> None:
         """Set whether the heater should be active or not."""
+        if self.heater_data is None:
+            return
         await self.set_eheater_param({"active": int(active)})
+
+    @property
+    def partner_device(self) -> EheimDigitalDevice | str | None:
+        """Return the partner device in Smart mode. If the device is not known, return the MAC address."""
+        if self.heater_data is None or not self.heater_data["sync"]:
+            return None
+        if self.heater_data["sync"] in self.hub.devices:
+            return self.hub.devices[self.heater_data["sync"]]
+        return self.heater_data["sync"]
+
+    async def set_partner_device(self, partner_device: EheimDigitalDevice) -> None:
+        """Set the partner device for Smart mode."""
+        if self.heater_data is None or not partner_device.mac_address:
+            return
+        await self.set_eheater_param({
+            "partnerName": partner_device.name,
+            "sync": partner_device.mac_address,
+        })
+
+    @property
+    def night_temperature_offset(self) -> float | None:
+        """Return the night temperature offset for Bio mode."""
+        if self.heater_data is None:
+            return None
+        return self.heater_data["nReduce"] / 10
+
+    async def set_night_temperature_offset(
+        self, night_temperature_offset: float
+    ) -> None:
+        """Set the night temperature offset for Bio mode."""
+        if self.heater_data is None:
+            return
+        await self.set_eheater_param({"nReduce": int(night_temperature_offset * 10)})
+
+    @property
+    def day_start_time(self) -> timedelta | None:
+        """Return the day start time for Bio mode."""
+        if self.heater_data is None:
+            return None
+        return timedelta(minutes=self.heater_data["dayStartT"])
+
+    async def set_day_start_time(self, day_start_time: timedelta) -> None:
+        """Set the day start time for Bio mode."""
+        if self.heater_data is None:
+            return
+        await self.set_eheater_param({
+            "dayStartT": int(day_start_time.total_seconds() / 60)
+        })
+
+    @property
+    def night_start_time(self) -> timedelta | None:
+        """Return the night start time for Bio mode."""
+        if self.heater_data is None:
+            return None
+        return timedelta(minutes=self.heater_data["nightStartT"])
+
+    async def set_night_start_time(self, night_start_time: timedelta) -> None:
+        """Set the night start time for Bio mode."""
+        if self.heater_data is None:
+            return
+        await self.set_eheater_param({
+            "nightStartT": int(night_start_time.total_seconds() / 60)
+        })

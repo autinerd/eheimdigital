@@ -17,8 +17,8 @@ class HeaterMode(IntEnum):
     """Heater operation mode."""
 
     MANUAL = 0
-    BIO = 1
-    SMART = 2
+    SMART = 1
+    BIO = 2
 
 
 class FilterMode(IntEnum):
