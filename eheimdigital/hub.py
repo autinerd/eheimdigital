@@ -181,13 +181,16 @@ class EheimDigitalHub:
             return
         while True:
             async for msg in self.ws:
-                if msg.type == aiohttp.WSMsgType.TEXT:
-                    msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
-                    if isinstance(msgdata, list):
-                        for part in msgdata:
-                            await self.parse_message(part)
-                    else:
-                        await self.parse_message(msgdata)
+                try:
+                    if msg.type == aiohttp.WSMsgType.TEXT:
+                        msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
+                        if isinstance(msgdata, list):
+                            for part in msgdata:
+                                await self.parse_message(part)
+                        else:
+                            await self.parse_message(msgdata)
+                except Exception as err:
+                    _LOGGER.exception("Exception in received message")
 
     async def update(self) -> None:
         """Update the device states."""
