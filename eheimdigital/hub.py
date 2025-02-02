@@ -179,7 +179,7 @@ class EheimDigitalHub:
         if self.ws is None:
             _LOGGER.error("receive_task called without an established connection!")
             return
-        while True:
+        while True:  # noqa: PLR1702
             async for msg in self.ws:
                 try:
                     if msg.type == aiohttp.WSMsgType.TEXT:
@@ -189,8 +189,8 @@ class EheimDigitalHub:
                                 await self.parse_message(part)
                         else:
                             await self.parse_message(msgdata)
-                except Exception as err:
-                    _LOGGER.exception("Exception in received message")
+                except Exception:
+                    _LOGGER.exception("Exception in received message", stack_info=True, stacklevel=5)
 
     async def update(self) -> None:
         """Update the device states."""
