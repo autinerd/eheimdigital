@@ -177,7 +177,7 @@ class EheimDigitalHub:
 
     async def receive_messages(self) -> None:
         """Receive messages from the hub."""
-        if self.ws is None:
+        if self.ws is None or self.ws.closed:
             _LOGGER.error("receive_task called without an established connection!")
             return
         while True:  # noqa: PLR1702
@@ -197,7 +197,8 @@ class EheimDigitalHub:
 
     async def update(self) -> None:
         """Update the device states."""
-        if self.ws is None:
+        if self.ws is None or self.ws.closed:
+            _LOGGER.info("WebSocket connection to %s closed, reconnect...", self.url)
             await self.connect()
         await self.request_usrdta("ALL")
         for device in self.devices.values():
