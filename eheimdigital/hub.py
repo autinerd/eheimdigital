@@ -67,7 +67,7 @@ class EheimDigitalHub:
 
     async def connect(self) -> None:  # pragma: no cover
         """Connect to the hub."""
-        self.ws = await self.session.ws_connect(self.url)
+        self.ws = await self.session.ws_connect(self.url, timeout=ClientWSTimeout(ws_receive=10.0, ws_close=10.0))
         self.receive_task = self.loop.create_task(self.receive_messages())
 
     async def close(self) -> None:  # pragma: no cover
