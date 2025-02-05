@@ -7,6 +7,7 @@ from logging import getLogger
 from typing import TYPE_CHECKING, Any, Callable
 
 import aiohttp
+from aiohttp.client_ws import ClientWSTimeout
 from yarl import URL
 
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
@@ -189,6 +190,8 @@ class EheimDigitalHub:
                                 await self.parse_message(part)
                         else:
                             await self.parse_message(msgdata)
+                    elif msg.type == aiohttp.WSMsgType.ERROR:
+                        raise msg.data
                 except Exception:
                     _LOGGER.exception("Exception in received message", stack_info=True, stacklevel=5)
 
