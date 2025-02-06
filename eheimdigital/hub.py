@@ -67,7 +67,7 @@ class EheimDigitalHub:
 
     async def connect(self) -> None:  # pragma: no cover
         """Connect to the hub."""
-        self.ws = await self.session.ws_connect(self.url, timeout=ClientWSTimeout(ws_receive=10.0, ws_close=10.0))
+        self.ws = await self.session.ws_connect(self.url)
         self.receive_task = self.loop.create_task(self.receive_messages())
 
     async def close(self) -> None:  # pragma: no cover
@@ -180,20 +180,22 @@ class EheimDigitalHub:
         if self.ws is None or self.ws.closed:
             _LOGGER.error("receive_task called without an established connection!")
             return
-        while True:  # noqa: PLR1702
+        try:
             async for msg in self.ws:
-                try:
-                    if msg.type == aiohttp.WSMsgType.TEXT:
-                        msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
-                        if isinstance(msgdata, list):
-                            for part in msgdata:
-                                await self.parse_message(part)
-                        else:
-                            await self.parse_message(msgdata)
-                    elif msg.type == aiohttp.WSMsgType.ERROR:
-                        raise msg.data
-                except Exception:
-                    _LOGGER.exception("Exception in received message", stack_info=True, stacklevel=5)
+                if msg.type == aiohttp.WSMsgType.TEXT:
+                    msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
+                    if isinstance(msgdata, list):
+                        for part in msgdata:
+                            await self.parse_message(part)
+                    else:
+                        await self.parse_message(msgdata)
+                elif msg.type == aiohttp.WSMsgType.ERROR:
+                    _LOGGER.error("Received error:\n%s", msg.data)
+                    return
+        except Exception:
+            _LOGGER.exception("Exception occurred", stack_info=True, stacklevel=5)
+            await self.ws.close()
+            return
 
     async def update(self) -> None:
         """Update the device states."""
