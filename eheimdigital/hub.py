@@ -176,10 +176,10 @@ class EheimDigitalHub:
 
     async def receive_messages(self) -> None:
         """Receive messages from the hub."""
-        if self.ws is None:
+        if self.ws is None or self.ws.closed:
             _LOGGER.error("receive_task called without an established connection!")
             return
-        while True:
+        try:
             async for msg in self.ws:
                 if msg.type == aiohttp.WSMsgType.TEXT:
                     msgdata: list[dict[str, Any]] | dict[str, Any] = msg.json()
@@ -188,10 +188,19 @@ class EheimDigitalHub:
                             await self.parse_message(part)
                     else:
                         await self.parse_message(msgdata)
+                elif msg.type == aiohttp.WSMsgType.ERROR:
+                    _LOGGER.warning("Received error, reconnecting...:\n%s", msg.data)
+                    await self.ws.close()
+                    return
+        except Exception:
+            _LOGGER.exception("Exception occurred on receiving messages", stack_info=True, stacklevel=5)
+            await self.ws.close()
+            return
 
     async def update(self) -> None:
         """Update the device states."""
-        if self.ws is None:
+        if self.ws is None or self.ws.closed:
+            _LOGGER.info("WebSocket connection to %s closed, reconnect...", self.url)
             await self.connect()
         await self.request_usrdta("ALL")
         for device in self.devices.values():
