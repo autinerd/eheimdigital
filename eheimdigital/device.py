@@ -24,6 +24,10 @@ class EheimDigitalDevice:
         self.hub = hub
         self.usrdta = usrdta
 
+    async def set_usrdta(self, data: dict[str, Any]) -> None:
+        """Send a USRDTA packet, containing new values from data."""
+        await self.hub.send_packet({**self.usrdta, **data})
+
     @cached_property
     def name(self) -> str:
         """Device name."""
@@ -48,6 +52,15 @@ class EheimDigitalDevice:
     def aquarium_name(self) -> str:
         """Aquarium name."""
         return self.usrdta["aqName"]
+
+    @property
+    def sys_led(self) -> int:
+        """Sys LED brightness."""
+        return self.usrdta["sysLED"]
+
+    async def set_sys_led(self, value: int) -> None:
+        """Set a new Sys LED brightness."""
+        await self.set_usrdta({"sysLED": value})
 
     @abstractmethod
     async def parse_message(self, msg: dict[str, Any]) -> None:
