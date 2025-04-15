@@ -160,6 +160,36 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         })
 
     @property
+    def high_pulse_speed(self) -> int | None:
+        """Return pulse speed for high pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["pulse_motorSpeed_High"]
+
+    async def set_high_pulse_speed(self, pulse_high: int) -> None:
+        """Set pulse speed for high pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "pulse_motorSpeed_High": pulse_high
+        })
+
+    @property
+    def low_pulse_speed(self) -> int | None:
+        """Return pulse speed for low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["pulse_motorSpeed_Low"]
+
+    async def set_low_pulse_speed(self, pulse_low: int) -> None:
+        """Set pulse speed for low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "pulse_motorSpeed_Low": pulse_low
+        })
+
+    @property
     def pulse_speeds(self) -> tuple[int, int] | None:
         """Return pulse speeds for high and low pulse in Pulse mode."""
         if self.classic_vario_data is None:
@@ -176,6 +206,37 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         await self.set_classic_vario_param({
             "pulse_motorSpeed_High": pulse_high,
             "pulse_motorSpeed_Low": pulse_low,
+        })
+
+
+    @property
+    def high_pulse_time(self) -> int | None:
+        """Return pulse time for high pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["pulse_Time_High"]
+
+    async def set_high_pulse_time(self, pulse_high: int) -> None:
+        """Set pulse time for high pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "pulse_Time_High": pulse_high
+        })
+
+    @property
+    def low_pulse_time(self) -> int | None:
+        """Return pulse time for low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return None
+        return self.classic_vario_data["pulse_Time_Low"]
+
+    async def set_low_pulse_time(self, pulse_low: int) -> None:
+        """Set pulse time for low pulse in Pulse mode."""
+        if self.classic_vario_data is None:
+            return
+        await self.set_classic_vario_param({
+            "pulse_Time_Low": pulse_low
         })
 
     @property
