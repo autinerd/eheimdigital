@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, time, timedelta, timezone
 from typing import TYPE_CHECKING, Any, override
 
 from .device import EheimDigitalDevice
@@ -183,31 +183,59 @@ class EheimDigitalHeater(EheimDigitalDevice):
         await self.set_eheater_param({"nReduce": int(night_temperature_offset * 10)})
 
     @property
-    def day_start_time(self) -> timedelta | None:
+    def day_start_time(self) -> time | None:
         """Return the day start time for Bio mode."""
         if self.heater_data is None:
             return None
-        return timedelta(minutes=self.heater_data["dayStartT"])
+        return time(
+            self.heater_data["dayStartT"] // 60,
+            self.heater_data["dayStartT"] % 60,
+            tzinfo=timezone(timedelta(minutes=self.usrdta["timezone"])),
+        )
 
-    async def set_day_start_time(self, day_start_time: timedelta) -> None:
+    async def set_day_start_time(self, day_start_time: time) -> None:
         """Set the day start time for Bio mode."""
         if self.heater_data is None:
             return
-        await self.set_eheater_param({
-            "dayStartT": int(day_start_time.total_seconds() / 60)
-        })
+        t = (
+            datetime(
+                2020,
+                1,
+                1,
+                day_start_time.hour,
+                day_start_time.minute,
+                tzinfo=day_start_time.tzinfo,
+            )
+            .astimezone(timezone(timedelta(minutes=self.usrdta["timezone"])))
+            .time()
+        )
+        await self.set_eheater_param({"dayStartT": t.hour * 60 + t.minute})
 
     @property
-    def night_start_time(self) -> timedelta | None:
+    def night_start_time(self) -> time | None:
         """Return the night start time for Bio mode."""
         if self.heater_data is None:
             return None
-        return timedelta(minutes=self.heater_data["nightStartT"])
+        return time(
+            self.heater_data["nightStartT"] // 60,
+            self.heater_data["nightStartT"] % 60,
+            tzinfo=timezone(timedelta(minutes=self.usrdta["timezone"])),
+        )
 
-    async def set_night_start_time(self, night_start_time: timedelta) -> None:
+    async def set_night_start_time(self, night_start_time: time) -> None:
         """Set the night start time for Bio mode."""
         if self.heater_data is None:
             return
-        await self.set_eheater_param({
-            "nightStartT": int(night_start_time.total_seconds() / 60)
-        })
+        t = (
+            datetime(
+                2020,
+                1,
+                1,
+                night_start_time.hour,
+                night_start_time.minute,
+                tzinfo=night_start_time.tzinfo,
+            )
+            .astimezone(timezone(timedelta(minutes=self.usrdta["timezone"])))
+            .time()
+        )
+        await self.set_eheater_param({"nightStartT": t.hour * 60 + t.minute})

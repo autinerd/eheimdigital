@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+from datetime import datetime, time, timedelta, timezone
 from logging import getLogger
 from typing import TYPE_CHECKING, Any, override
 
@@ -130,34 +130,62 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         await self.set_classic_vario_param({"rel_motor_speed_night": speed})
 
     @property
-    def day_start_time(self) -> timedelta | None:
+    def day_start_time(self) -> time | None:
         """Return the day start time for Bio mode."""
         if self.classic_vario_data is None:
             return None
-        return timedelta(minutes=self.classic_vario_data["startTime_day"])
+        return time(
+            self.classic_vario_data["startTime_day"] // 60,
+            self.classic_vario_data["startTime_day"] % 60,
+            tzinfo=timezone(timedelta(minutes=self.usrdta["timezone"])),
+        )
 
-    async def set_day_start_time(self, day_start_time: timedelta) -> None:
+    async def set_day_start_time(self, day_start_time: time) -> None:
         """Set the day start time for Bio mode."""
         if self.classic_vario_data is None:
             return
-        await self.set_classic_vario_param({
-            "startTime_day": int(day_start_time.total_seconds() / 60)
-        })
+        t = (
+            datetime(
+                2020,
+                1,
+                1,
+                day_start_time.hour,
+                day_start_time.minute,
+                tzinfo=day_start_time.tzinfo,
+            )
+            .astimezone(timezone(timedelta(minutes=self.usrdta["timezone"])))
+            .time()
+        )
+        await self.set_classic_vario_param({"startTime_day": t.hour * 60 + t.minute})
 
     @property
-    def night_start_time(self) -> timedelta | None:
+    def night_start_time(self) -> time | None:
         """Return the night start time for Bio mode."""
         if self.classic_vario_data is None:
             return None
-        return timedelta(minutes=self.classic_vario_data["startTime_night"])
+        return time(
+            self.classic_vario_data["startTime_night"] // 60,
+            self.classic_vario_data["startTime_night"] % 60,
+            tzinfo=timezone(timedelta(minutes=self.usrdta["timezone"])),
+        )
 
-    async def set_night_start_time(self, night_start_time: timedelta) -> None:
+    async def set_night_start_time(self, night_start_time: time) -> None:
         """Set the night start time for Bio mode."""
         if self.classic_vario_data is None:
             return
-        await self.set_classic_vario_param({
-            "startTime_night": int(night_start_time.total_seconds() / 60)
-        })
+        t = (
+            datetime(
+                2020,
+                1,
+                1,
+                night_start_time.hour,
+                night_start_time.minute,
+                tzinfo=night_start_time.tzinfo,
+            )
+            .astimezone(timezone(timedelta(minutes=self.usrdta["timezone"])))
+            .time()
+        )
+        await self.set_classic_vario_param({"startTime_night": t.hour * 60 + t.minute})
 
     @property
     def high_pulse_speed(self) -> int | None:
@@ -170,9 +198,7 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         """Set pulse speed for high pulse in Pulse mode."""
         if self.classic_vario_data is None:
             return
-        await self.set_classic_vario_param({
-            "pulse_motorSpeed_High": pulse_high
-        })
+        await self.set_classic_vario_param({"pulse_motorSpeed_High": pulse_high})
 
     @property
     def low_pulse_speed(self) -> int | None:
@@ -185,9 +211,7 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         """Set pulse speed for low pulse in Pulse mode."""
         if self.classic_vario_data is None:
             return
-        await self.set_classic_vario_param({
-            "pulse_motorSpeed_Low": pulse_low
-        })
+        await self.set_classic_vario_param({"pulse_motorSpeed_Low": pulse_low})
 
     @property
     def pulse_speeds(self) -> tuple[int, int] | None:
@@ -208,7 +232,6 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
             "pulse_motorSpeed_Low": pulse_low,
         })
 
-
     @property
     def high_pulse_time(self) -> int | None:
         """Return pulse time for high pulse in Pulse mode."""
@@ -220,9 +243,7 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         """Set pulse time for high pulse in Pulse mode."""
         if self.classic_vario_data is None:
             return
-        await self.set_classic_vario_param({
-            "pulse_Time_High": pulse_high
-        })
+        await self.set_classic_vario_param({"pulse_Time_High": pulse_high})
 
     @property
     def low_pulse_time(self) -> int | None:
@@ -235,9 +256,7 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         """Set pulse time for low pulse in Pulse mode."""
         if self.classic_vario_data is None:
             return
-        await self.set_classic_vario_param({
-            "pulse_Time_Low": pulse_low
-        })
+        await self.set_classic_vario_param({"pulse_Time_Low": pulse_low})
 
     @property
     def pulse_times(self) -> tuple[int, int] | None:
