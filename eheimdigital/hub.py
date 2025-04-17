@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any, Callable
 import aiohttp
 from yarl import URL
 
+from eheimdigital.ph_control import EheimDigitalPHControl
+
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
 from .classic_vario import EheimDigitalClassicVario
 from .heater import EheimDigitalHeater
@@ -76,7 +78,7 @@ class EheimDigitalHub:
         if self.ws is not None and not self.ws.closed:
             _ = await self.ws.close()
 
-    async def add_device(self, usrdta: UsrDtaPacket) -> None:
+    async def add_device(self, usrdta: UsrDtaPacket) -> None:  # noqa: C901
         """Add a device to the device list."""
         match EheimDeviceType(usrdta["version"]):
             case EheimDeviceType.VERSION_EHEIM_EXT_HEATER:
@@ -95,6 +97,12 @@ class EheimDigitalHub:
                 self.devices[usrdta["from"]] = EheimDigitalClassicLEDControl(
                     self, usrdta
                 )
+                if self.device_found_callback:
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
+            case EheimDeviceType.VERSION_EHEIM_PH_CONTROL:
+                self.devices[usrdta["from"]] = EheimDigitalPHControl(self, usrdta)
                 if self.device_found_callback:
                     await self.device_found_callback(
                         usrdta["from"], EheimDeviceType(usrdta["version"])
@@ -193,7 +201,11 @@ class EheimDigitalHub:
                     await self.ws.close()
                     return
         except Exception:
-            _LOGGER.exception("Exception occurred on receiving messages", stack_info=True, stacklevel=5)
+            _LOGGER.exception(
+                "Exception occurred on receiving messages",
+                stack_info=True,
+                stacklevel=5,
+            )
             await self.ws.close()
             return
 

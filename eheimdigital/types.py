@@ -44,6 +44,22 @@ class LightMode(StrEnum):
     MAN_MODE = "MAN_MODE"
 
 
+class PHControlMode(IntEnum):
+    """pHcontrol operation mode."""
+
+    MANUAL_MODE = 0
+    DAYCL_MODE = 1
+
+
+class PHControlErrorCode(IntEnum):
+    """pHcontrol error code."""
+
+    NO_ERROR = 0
+    PH_TOO_HIGH = 1
+    PH_TOO_LOW = 2
+    ELECTRODE_MISSING = 3
+
+
 class MsgTitle(StrEnum):
     """Represent a message title."""
 
@@ -63,6 +79,8 @@ class MsgTitle(StrEnum):
     CLOUD = "CLOUD"
     ACCLIMATE = "ACCLIMATE"
     REQ_KEEP_ALIVE = "REQ_KEEP_ALIVE"
+    PH_DATA = "PH_DATA"
+    GET_PH_DATA = "GET_PH_DATA"
 
 
 class EheimDeviceType(IntEnum):
@@ -288,6 +306,34 @@ ClockPacket = TypedDict(
         "sec": int,
         "mode": NotRequired[str],
         "valid": NotRequired[int],
+    },
+)
+
+PHDataPacket = TypedDict(
+    "PHDataPacket",
+    {
+        "title": Literal[MsgTitle.PH_DATA],
+        "from": str,
+        "sollPH": int,
+        "isPH": int,
+        "active": int,
+        "hystLow": int,
+        "hystHigh": int,
+        "offset": int,
+        "valveIsActive": int,
+        "acclimatization": int,
+        "mode": int,
+        "expert": int,
+        "sync": str,
+        "partnerName": str,
+        "dayStartT": int,
+        "nightStartT": int,
+        "nReduce": int,
+        "alertState": int,
+        "serviceTime": int,
+        "kH": int,
+        "schedule": list[list[int]],
+        "to": str,
     },
 )
 
