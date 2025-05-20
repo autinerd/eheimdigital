@@ -297,7 +297,7 @@ class EheimDigitalPHControl(EheimDigitalDevice):
     async def set_night_temperature_offset(
         self, night_temperature_offset: float
     ) -> None:
-        """Set the night temperature offset for BDaycycleio mode."""
+        """Set the night temperature offset for Daycycle mode."""
         if self.ph_data is None:
             return
         await self.set_ph_param({"nReduce": int(night_temperature_offset * 10)})

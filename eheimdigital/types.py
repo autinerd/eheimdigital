@@ -118,6 +118,8 @@ class EheimDeviceType(IntEnum):
                 return "classicVARIO+e"
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
                 return "classicLEDcontrol+e"
+            case EheimDeviceType.VERSION_EHEIM_PH_CONTROL:
+                return "pHcontrol+e"
             case _:
                 return None
 
