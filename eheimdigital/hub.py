@@ -217,3 +217,13 @@ class EheimDigitalHub:
         await self.request_usrdta("ALL")
         for device in self.devices.values():
             await device.update()
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return the hub as a dictionary."""
+        return {
+            "address": self.url.host,
+            "mac_address": self.main.mac_address if self.main else None,
+            "devices": {
+                address: dev.as_dict() for address, dev in self.devices.items()
+            },
+        }

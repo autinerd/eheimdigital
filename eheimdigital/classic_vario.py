@@ -317,3 +317,11 @@ class EheimDigitalClassicVario(EheimDigitalDevice):
         if self.classic_vario_data is None:
             return None
         return FilterErrorCode(self.classic_vario_data["errorCode"])
+
+    @override
+    def as_dict(self) -> dict[str, Any]:
+        """Return the device as a dictionary."""
+        return {
+            "classic_vario_data": self.classic_vario_data,
+            **super().as_dict(),
+        }

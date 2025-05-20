@@ -69,3 +69,9 @@ class EheimDigitalDevice:
     @abstractmethod
     async def update(self) -> None:
         """Update a device state."""
+
+    def as_dict(self) -> dict[str, Any]:
+        """Return the device as a dictionary."""
+        return {
+            "usrdta": self.usrdta,
+        }

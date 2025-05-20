@@ -239,3 +239,11 @@ class EheimDigitalHeater(EheimDigitalDevice):
             .time()
         )
         await self.set_eheater_param({"nightStartT": t.hour * 60 + t.minute})
+
+    @override
+    def as_dict(self) -> dict[str, Any]:
+        """Return the device as a dictionary."""
+        return {
+            "heater_data": self.heater_data,
+            **super().as_dict(),
+        }

@@ -148,3 +148,14 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             "to": self.mac_address,
             "from": "USER",
         })
+
+    @override
+    def as_dict(self) -> dict[str, Any]:
+        """Return the device as a dictionary."""
+        return {
+            "ccv": self.ccv,
+            "clock": self.clock,
+            "cloud": self.cloud,
+            "moon": self.moon,
+            **super().as_dict(),
+        }

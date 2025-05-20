@@ -322,3 +322,11 @@ class EheimDigitalPHControl(EheimDigitalDevice):
         if self.ph_data is None:
             return None
         return bool(self.ph_data["valveIsActive"])
+
+    @override
+    def as_dict(self) -> dict[str, Any]:
+        """Return the device as a dictionary."""
+        return {
+            "ph_data": self.ph_data,
+            **super().as_dict(),
+        }

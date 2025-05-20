@@ -30,7 +30,7 @@ preview = true
 
 [tool.ruff.lint]
 select = ["ALL"]
-ignore = ["D211", "D213", "COM812", "D203", "ISC001", "E501", "EXE002", "CPY001", "PLR0913", "PLR0904"]
+ignore = ["D211", "D213", "COM812", "D203", "ISC001", "E501", "EXE002", "CPY001", "PLR0913", "PLR0904", "DOC201"]
 
 [tool.ruff.lint.flake8-pytest-style]
 fixture-parentheses = false
