@@ -1,4 +1,4 @@
-"""Types for Eheim Digital."""  # noqa: A005
+"""Types for Eheim Digital."""
 
 from __future__ import annotations
 

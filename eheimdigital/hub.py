@@ -78,7 +78,7 @@ class EheimDigitalHub:
         if self.ws is not None and not self.ws.closed:
             _ = await self.ws.close()
 
-    async def add_device(self, usrdta: UsrDtaPacket) -> None:  # noqa: C901
+    async def add_device(self, usrdta: UsrDtaPacket) -> None:  # noqa: C901, PLR0912
         """Add a device to the device list."""
         match EheimDeviceType(usrdta["version"]):
             case EheimDeviceType.VERSION_EHEIM_EXT_HEATER:

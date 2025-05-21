@@ -143,7 +143,6 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             **data,
         })
 
-
     @property
     def light_level(self) -> tuple[int | None, int | None]:
         """Return the current light level of the channels."""
@@ -298,7 +297,7 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return None
         return bool(self.cloud["cloudActive"])
 
-    async def set_cloud_active(self, active: bool) -> None:
+    async def set_cloud_active(self, *, active: bool) -> None:
         """Set whether the cloud effect is active."""
         if self.cloud is None:
             return
@@ -350,7 +349,7 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return None
         return bool(self.moon["moonlightActive"])
 
-    async def set_moon_light_active(self, active: bool) -> None:
+    async def set_moon_light_active(self, *, active: bool) -> None:
         """Set whether the moonlight effect is active."""
         if self.moon is None:
             return
@@ -363,7 +362,7 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return None
         return bool(self.moon["moonlightCycle"])
 
-    async def set_moon_light_cycle(self, cycle: bool) -> None:
+    async def set_moon_light_cycle(self, *, cycle: bool) -> None:
         """Set whether the moonlight cycle is active."""
         if self.moon is None:
             return
@@ -415,7 +414,7 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return None
         return bool(self.acclimate["acclActive"])
 
-    async def set_acclimate_active(self, active: bool) -> None:
+    async def set_acclimate_active(self, *, active: bool) -> None:
         """Set whether the acclimate effect is active."""
         if self.acclimate is None:
             return
@@ -428,7 +427,7 @@ class EheimDigitalClassicLEDControl(EheimDigitalDevice):
             return None
         return bool(self.acclimate["pause"])
 
-    async def set_acclimate_pause(self, pause: bool) -> None:
+    async def set_acclimate_pause(self, *, pause: bool) -> None:
         """Set whether the acclimate effect is paused."""
         if self.acclimate is None:
             return
