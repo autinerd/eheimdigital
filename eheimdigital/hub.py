@@ -9,11 +9,11 @@ from typing import TYPE_CHECKING, Any, Callable
 import aiohttp
 from yarl import URL
 
-from eheimdigital.ph_control import EheimDigitalPHControl
-
+from .autofeeder import EheimDigitalAutofeeder
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
 from .classic_vario import EheimDigitalClassicVario
 from .heater import EheimDigitalHeater
+from .ph_control import EheimDigitalPHControl
 from .types import (
     EheimDeviceType,
     EheimDigitalClientError,
@@ -103,6 +103,12 @@ class EheimDigitalHub:
                     )
             case EheimDeviceType.VERSION_EHEIM_PH_CONTROL:
                 self.devices[usrdta["from"]] = EheimDigitalPHControl(self, usrdta)
+                if self.device_found_callback:
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
+            case EheimDeviceType.VERSION_EHEIM_FEEDER:
+                self.devices[usrdta["from"]] = EheimDigitalAutofeeder(self, usrdta)
                 if self.device_found_callback:
                     await self.device_found_callback(
                         usrdta["from"], EheimDeviceType(usrdta["version"])

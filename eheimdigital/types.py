@@ -60,6 +60,15 @@ class PHControlErrorCode(IntEnum):
     ELECTRODE_MISSING = 3
 
 
+class FeederDrumState(IntEnum):
+    """Feeder drum state."""
+
+    GREEN = 0
+    YELLOW = 1
+    RED = 2
+    MEASURING = 5
+
+
 class MsgTitle(StrEnum):
     """Represent a message title."""
 
@@ -81,6 +90,14 @@ class MsgTitle(StrEnum):
     REQ_KEEP_ALIVE = "REQ_KEEP_ALIVE"
     PH_DATA = "PH_DATA"
     GET_PH_DATA = "GET_PH_DATA"
+    FEEDER_DATA = "FEEDER_DATA"
+    GET_FEEDER_DATA = "GET_FEEDER_DATA"
+    SET_FEEDER_DATA = "SET_FEEDER_DATA"
+    SET_FEEDER_TARA = "SET_FEEDER_TARA"
+    SET_FEEDER_FULL = "SET_FEEDER_FULL"
+    SET_MANUAL_FEED = "SET_MANUAL_FEED"
+    SET_MANUAL_MEASUREMENT = "SET_MANUAL_MEASUREMENT"
+    SET_STOP_FEEDER_SYNC = "SET_STOP_FEEDER_SYNC"
 
 
 class EheimDeviceType(IntEnum):
@@ -336,6 +353,25 @@ PHDataPacket = TypedDict(
         "kH": int,
         "schedule": list[list[int]],
         "to": str,
+    },
+)
+
+FeederDataPacket = TypedDict(
+    "FeederDataPacket",
+    {
+        "title": Literal[MsgTitle.FEEDER_DATA],
+        "from": str,
+        "weight": float,
+        "isSpinning": int,
+        "level": list[int],
+        "configuration": list[list[int]],
+        "overfeeding": int,
+        "sync": str,
+        "partnerName": str,
+        "sollRegulation": int,
+        "feedingBreak": int,
+        "breakDay": int,
+        "turnTimeFeeding": int,
     },
 )
 
