@@ -217,3 +217,11 @@ class EheimDigitalAutofeeder(EheimDigitalDevice):
         await self.set_feeder_data({
             "breakDay": int(break_day),
         })
+
+    @override
+    def as_dict(self) -> dict[str, Any]:
+        """Return the device as a dictionary."""
+        return {
+            "feeder_data": self.feeder_data,
+            **super().as_dict(),
+        }
