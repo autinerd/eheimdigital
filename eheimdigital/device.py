@@ -53,6 +53,11 @@ class EheimDigitalDevice:
         """Aquarium name."""
         return self.usrdta["aqName"]
 
+    @cached_property
+    def tank_config(self) -> str:
+        """Tank Configuration."""
+        return self.usrdta["tankconfig"]
+
     @property
     def sys_led(self) -> int:
         """Sys LED brightness."""

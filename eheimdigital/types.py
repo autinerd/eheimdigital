@@ -29,6 +29,15 @@ class FilterMode(IntEnum):
     BIO = 4
 
 
+class FilterModeProf(IntEnum):
+    """Filter operation modes for professionel5e."""
+
+    MANUAL = 16
+    CONSTANT = 1
+    PULSE = 8
+    BIO = 4
+
+
 class FilterErrorCode(IntEnum):
     """Filter error code."""
 
@@ -98,6 +107,13 @@ class MsgTitle(StrEnum):
     SET_MANUAL_FEED = "SET_MANUAL_FEED"
     SET_MANUAL_MEASUREMENT = "SET_MANUAL_MEASUREMENT"
     SET_STOP_FEEDER_SYNC = "SET_STOP_FEEDER_SYNC"
+    PROF_5E_DATA = "FILTER_DATA"
+    PROF_5E_GET_DATA = "GET_FILTER_DATA"
+    PROF_5E_PUMP = "SET_FILTER_PUMP"
+    PROF_5E_MANUAL = "START_FILTER_NORMAL_MODE_WITHOUT_COMP"
+    PROF_5E_CONSTANT = "START_FILTER_NORMAL_MODE_WITH_COMP"
+    PROF_5E_PULSE = "START_FILTER_PULSE_MODE"
+    PROF_5E_BIO = "START_NOCTURNAL_MODE"
 
 
 class EheimDeviceType(IntEnum):
@@ -133,6 +149,8 @@ class EheimDeviceType(IntEnum):
                 return "thermocontrol+e"
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
                 return "classicVARIO+e"
+            case EheimDeviceType.VERSION_EHEIM_EXT_FILTER:
+                return "professionel5e"
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
                 return "classicLEDcontrol+e"
             case EheimDeviceType.VERSION_EHEIM_PH_CONTROL:
@@ -255,6 +273,42 @@ ClassicVarioDataPacket = TypedDict(
         "turnTimeFeeding": int,
         "errorCode": int,
         "version": int,
+    },
+)
+
+professionel5eDataPacket = TypedDict(
+    "professionel5eDataPacket",
+    {
+        "title": Literal[MsgTitle.PROF_5E_DATA],
+        "from": str,
+        "minFreq": int,
+        "maxFreq": int,
+        "maxFreqRglOff": int,
+        "freq": int,
+        "freqSoll": int,
+        "dfs": int,
+        "dfsFaktor": int,
+        "sollStep": int,
+        "rotSpeed": int,
+        "pumpMode": int,
+        "sync": str,
+        "partnerName": str,
+        "filterActive": int,
+        "runTime": int,
+        "actualTime": int,
+        "serviceHour": int,
+        "pm_dfs_soll_high": int,
+        "pm_dfs_soll_low": int,
+        "pm_time_high": int,
+        "pm_time_low": int,
+        "nm_dfs_soll_day": int,
+        "nm_dfs_soll_night": int,
+        "end_time_night_mode": int,
+        "start_time_night_mode": int,
+        "version": int,
+        "isEheim": int,
+        "turnOffTime": int,
+        "turnTimeFeeding": int,
     },
 )
 
