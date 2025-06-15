@@ -50,17 +50,29 @@ class EheimDigitalProfessionel5e(EheimDigitalDevice):
 
     async def filter_command(self, title: MsgTitle, data: dict[str, Any]) -> None:
         """Send a filter command with parameter."""
-        if self.data_paket is None:
-            _LOGGER.error(f"No filter data packet received yet! Can not send {title}, {data}")
-            return
-        msg = {
-            "title": title.value,
-            "to": self.data_paket["from"],
-            "from": "USER_OPT",
-            **data,
-        }
+        if title == MsgTitle.USRDTA:    # general command
+            msg = {
+                'title': title.value,
+                "to": self.usrdta["from"],
+                "from": "USER_OPT",
+                **data,
+            }
+        else:                           # specific command
+            if self.data_paket is None:
+                _LOGGER.error(f"No filter data packet received yet! Can not send {title}, {data}")
+                return
+            msg = {
+                "title": title.value,
+                "to": self.data_paket["from"],
+                "from": "USER_OPT",
+                **data,
+            }
         _LOGGER.info(f"Command to professionel5e: {msg}")
         await self.hub.send_packet(msg)
+
+    async def set_sys_led(self, value: int) -> None:
+        """Set a new Sys LED brightness."""
+        await self.filter_command(MsgTitle.USRDTA, {"sysLED": value})
 
     @property
     def is_active(self) -> bool | None:
@@ -81,7 +93,7 @@ class EheimDigitalProfessionel5e(EheimDigitalDevice):
         try:
             return FilterModeProf(self.data_paket["pumpMode"]) if self.data_paket is not None else None
         except ValueError:
-            _LOGGER.error(f"Invalid Punp Mode (calibration): {self.data_paket['pumpMode']}")
+            _LOGGER.debug(f"Invalid Pump Mode (calibration): {self.data_paket['pumpMode']}")
             return None
 
     async def set_filter_mode(self, mode: FilterModeProf) -> None:

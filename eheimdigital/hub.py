@@ -162,6 +162,8 @@ class EheimDigitalHub:
         """Parse a USRDTA packet."""
         if msg["from"] not in self.devices:
             await self.add_device(msg)
+        else:
+            self.devices[msg["from"]].usrdta['sysLED'] = msg['sysLED']  # parse sysLED
 
     async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a received message."""
