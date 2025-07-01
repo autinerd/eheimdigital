@@ -44,6 +44,12 @@ class EheimDigitalDevice:
         return f"{self.usrdta['revision'][0] // 1000}.{(self.usrdta['revision'][0] % 1000) // 100}.{self.usrdta['revision'][0] % 100}_{self.usrdta['revision'][1] // 1000}.{(self.usrdta['revision'][1] % 1000) // 100}.{self.usrdta['revision'][1] % 100}"
 
     @cached_property
+    def sw_version_pretty(self) -> str:
+        """Device software version with formating and order like on Eheim page."""
+        rv0, rv1 = self.usrdta["revision"]
+        return f"{rv1 // 1000}.{(rv1 % 1000) // 10:02}.{rv1 % 10} (page) {rv0 // 1000}.{(rv0 % 1000) // 10:02}.{rv0 % 10} (server)"
+
+    @cached_property
     def device_type(self) -> EheimDeviceType:
         """Device type."""
         return EheimDeviceType(self.usrdta["version"])
@@ -52,6 +58,11 @@ class EheimDigitalDevice:
     def aquarium_name(self) -> str:
         """Aquarium name."""
         return self.usrdta["aqName"]
+
+    @cached_property
+    def tank_config(self) -> str:
+        """Tank Configuration."""
+        return self.usrdta["tankconfig"]
 
     @property
     def sys_led(self) -> int:

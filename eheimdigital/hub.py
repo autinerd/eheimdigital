@@ -12,6 +12,7 @@ from yarl import URL
 from .autofeeder import EheimDigitalAutofeeder
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
 from .classic_vario import EheimDigitalClassicVario
+from .filter import EheimDigitalFilter
 from .heater import EheimDigitalHeater
 from .ph_control import EheimDigitalPHControl
 from .types import (
@@ -89,6 +90,12 @@ class EheimDigitalHub:
                     )
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
                 self.devices[usrdta["from"]] = EheimDigitalClassicVario(self, usrdta)
+                if self.device_found_callback:
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
+            case EheimDeviceType.VERSION_EHEIM_EXT_FILTER:
+                self.devices[usrdta["from"]] = EheimDigitalFilter(self, usrdta)
                 if self.device_found_callback:
                     await self.device_found_callback(
                         usrdta["from"], EheimDeviceType(usrdta["version"])

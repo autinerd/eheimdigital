@@ -6,6 +6,13 @@ from enum import IntEnum, StrEnum
 from typing import Literal, NotRequired, TypedDict
 
 
+class UnitOfMeasurement(IntEnum):
+    """Unit of measurement."""
+
+    METRIC = 0
+    US_CUSTOMARY = 1
+
+
 class HeaterUnit(IntEnum):
     """Heater temperature unit."""
 
@@ -25,6 +32,15 @@ class FilterMode(IntEnum):
     """Filter operation mode."""
 
     MANUAL = 16
+    PULSE = 8
+    BIO = 4
+
+
+class FilterModeProf(IntEnum):
+    """Filter operation modes for professionel5e."""
+
+    MANUAL = 16
+    CONSTANT_FLOW = 1
     PULSE = 8
     BIO = 4
 
@@ -98,6 +114,13 @@ class MsgTitle(StrEnum):
     SET_MANUAL_FEED = "SET_MANUAL_FEED"
     SET_MANUAL_MEASUREMENT = "SET_MANUAL_MEASUREMENT"
     SET_STOP_FEEDER_SYNC = "SET_STOP_FEEDER_SYNC"
+    FILTER_DATA = "FILTER_DATA"
+    GET_FILTER_DATA = "GET_FILTER_DATA"
+    SET_FILTER_PUMP = "SET_FILTER_PUMP"
+    START_FILTER_NORMAL_MODE_WITHOUT_COMP = "START_FILTER_NORMAL_MODE_WITHOUT_COMP"
+    START_FILTER_NORMAL_MODE_WITH_COMP = "START_FILTER_NORMAL_MODE_WITH_COMP"
+    START_FILTER_PULSE_MODE = "START_FILTER_PULSE_MODE"
+    START_NOCTURNAL_MODE = "START_NOCTURNAL_MODE"
 
 
 class EheimDeviceType(IntEnum):
@@ -133,6 +156,8 @@ class EheimDeviceType(IntEnum):
                 return "thermocontrol+e"
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
                 return "classicVARIO+e"
+            case EheimDeviceType.VERSION_EHEIM_EXT_FILTER:
+                return "professionel 5e"
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
                 return "classicLEDcontrol+e"
             case EheimDeviceType.VERSION_EHEIM_PH_CONTROL:
@@ -255,6 +280,42 @@ ClassicVarioDataPacket = TypedDict(
         "turnTimeFeeding": int,
         "errorCode": int,
         "version": int,
+    },
+)
+
+FilterDataPacket = TypedDict(
+    "FilterDataPacket",
+    {
+        "title": Literal[MsgTitle.FILTER_DATA],
+        "from": str,
+        "minFreq": int,
+        "maxFreq": int,
+        "maxFreqRglOff": int,
+        "freq": int,
+        "freqSoll": int,
+        "dfs": int,
+        "dfsFaktor": int,
+        "sollStep": int,
+        "rotSpeed": int,
+        "pumpMode": int,
+        "sync": str,
+        "partnerName": str,
+        "filterActive": int,
+        "runTime": int,
+        "actualTime": int,
+        "serviceHour": int,
+        "pm_dfs_soll_high": int,
+        "pm_dfs_soll_low": int,
+        "pm_time_high": int,
+        "pm_time_low": int,
+        "nm_dfs_soll_day": int,
+        "nm_dfs_soll_night": int,
+        "end_time_night_mode": int,
+        "start_time_night_mode": int,
+        "version": int,
+        "isEheim": int,
+        "turnOffTime": int,
+        "turnTimeFeeding": int,
     },
 )
 
