@@ -12,7 +12,7 @@ from yarl import URL
 from .autofeeder import EheimDigitalAutofeeder
 from .classic_led_ctrl import EheimDigitalClassicLEDControl
 from .classic_vario import EheimDigitalClassicVario
-from .professionel5e import EheimDigitalProfessionel5e
+from .filter import EheimDigitalFilter
 from .heater import EheimDigitalHeater
 from .ph_control import EheimDigitalPHControl
 from .types import (
@@ -95,7 +95,7 @@ class EheimDigitalHub:
                         usrdta["from"], EheimDeviceType(usrdta["version"])
                     )
             case EheimDeviceType.VERSION_EHEIM_EXT_FILTER:
-                self.devices[usrdta["from"]] = EheimDigitalProfessionel5e(self, usrdta)
+                self.devices[usrdta["from"]] = EheimDigitalFilter(self, usrdta)
                 if self.device_found_callback:
                     await self.device_found_callback(
                         usrdta["from"], EheimDeviceType(usrdta["version"])
@@ -162,8 +162,6 @@ class EheimDigitalHub:
         """Parse a USRDTA packet."""
         if msg["from"] not in self.devices:
             await self.add_device(msg)
-        else:
-            self.devices[msg["from"]].usrdta['sysLED'] = msg['sysLED']  # parse sysLED
 
     async def parse_message(self, msg: dict[str, Any]) -> None:
         """Parse a received message."""

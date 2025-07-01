@@ -6,6 +6,13 @@ from enum import IntEnum, StrEnum
 from typing import Literal, NotRequired, TypedDict
 
 
+class UnitOfMeasurement(IntEnum):
+    """Unit of measurement."""
+
+    METRIC = 0
+    US_CUSTOMARY = 1
+
+
 class HeaterUnit(IntEnum):
     """Heater temperature unit."""
 
@@ -33,7 +40,7 @@ class FilterModeProf(IntEnum):
     """Filter operation modes for professionel5e."""
 
     MANUAL = 16
-    CONSTANT = 1
+    CONSTANT_FLOW = 1
     PULSE = 8
     BIO = 4
 
@@ -107,13 +114,13 @@ class MsgTitle(StrEnum):
     SET_MANUAL_FEED = "SET_MANUAL_FEED"
     SET_MANUAL_MEASUREMENT = "SET_MANUAL_MEASUREMENT"
     SET_STOP_FEEDER_SYNC = "SET_STOP_FEEDER_SYNC"
-    PROF_5E_DATA = "FILTER_DATA"
-    PROF_5E_GET_DATA = "GET_FILTER_DATA"
-    PROF_5E_PUMP = "SET_FILTER_PUMP"
-    PROF_5E_MANUAL = "START_FILTER_NORMAL_MODE_WITHOUT_COMP"
-    PROF_5E_CONSTANT = "START_FILTER_NORMAL_MODE_WITH_COMP"
-    PROF_5E_PULSE = "START_FILTER_PULSE_MODE"
-    PROF_5E_BIO = "START_NOCTURNAL_MODE"
+    FILTER_DATA = "FILTER_DATA"
+    GET_FILTER_DATA = "GET_FILTER_DATA"
+    SET_FILTER_PUMP = "SET_FILTER_PUMP"
+    START_FILTER_NORMAL_MODE_WITHOUT_COMP = "START_FILTER_NORMAL_MODE_WITHOUT_COMP"
+    START_FILTER_NORMAL_MODE_WITH_COMP = "START_FILTER_NORMAL_MODE_WITH_COMP"
+    START_FILTER_PULSE_MODE = "START_FILTER_PULSE_MODE"
+    START_NOCTURNAL_MODE = "START_NOCTURNAL_MODE"
 
 
 class EheimDeviceType(IntEnum):
@@ -150,7 +157,7 @@ class EheimDeviceType(IntEnum):
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_VARIO:
                 return "classicVARIO+e"
             case EheimDeviceType.VERSION_EHEIM_EXT_FILTER:
-                return "professionel5e"
+                return "professionel 5e"
             case EheimDeviceType.VERSION_EHEIM_CLASSIC_LED_CTRL_PLUS_E:
                 return "classicLEDcontrol+e"
             case EheimDeviceType.VERSION_EHEIM_PH_CONTROL:
@@ -276,10 +283,10 @@ ClassicVarioDataPacket = TypedDict(
     },
 )
 
-professionel5eDataPacket = TypedDict(
-    "professionel5eDataPacket",
+FilterDataPacket = TypedDict(
+    "FilterDataPacket",
     {
-        "title": Literal[MsgTitle.PROF_5E_DATA],
+        "title": Literal[MsgTitle.FILTER_DATA],
         "from": str,
         "minFreq": int,
         "maxFreq": int,
