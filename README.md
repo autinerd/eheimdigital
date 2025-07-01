@@ -8,6 +8,7 @@ This library is an API wrapper for the EHEIM.digital smart aquarium tools.
 - EHEIM autofeeder+
 - EHEIM classicLEDcontrol+e
 - EHEIM classicVARIO
+- EHEIM professionel 5e
 - EHEIM thermocontrol
 - EHEIM pHcontrol+e
 
