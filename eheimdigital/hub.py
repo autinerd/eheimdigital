@@ -121,11 +121,16 @@ class EheimDigitalHub:
                         usrdta["from"], EheimDeviceType(usrdta["version"])
                     )
             case _:
-                _LOGGER.debug(
+                _LOGGER.warning(
                     "Found device %s with unsupported device type %s",
                     usrdta["from"],
                     EheimDeviceType(usrdta["version"]),
                 )
+                self.devices[usrdta["from"]] = EheimDigitalDevice(self, usrdta)
+                if self.device_found_callback:
+                    await self.device_found_callback(
+                        usrdta["from"], EheimDeviceType(usrdta["version"])
+                    )
         if self.main is None and usrdta["from"] in self.devices:
             self.main = self.devices[usrdta["from"]]
             if self.main_device_added_event:
